@@ -40,6 +40,9 @@ export function fileSelector(
 
   const handleFileInputChange = () => {
     const files = Array.from(input.files || []);
+    // Clearing lets the same file be chosen again. The picker otherwise
+    // keeps the previous path and fires no change event.
+    input.value = '';
     const validFiles = files.filter(isFileTypeValid);
 
     if (validFiles.length > 0) {
@@ -50,10 +53,18 @@ export function fileSelector(
   let options = accessor();
   let input = document.createElement('input');
   input.type = 'file';
+  input.tabIndex = -1;
+  input.setAttribute('aria-hidden', 'true');
   if (options?.id) {
     input.id = options.id;
   }
-  input.style.display = 'none';
+  // A file input that is not in the document never opens its dialog.
+  // Keep it off-screen instead of display:none, which some browsers also ignore.
+  input.style.position = 'fixed';
+  input.style.left = '-100px';
+  input.style.width = '1px';
+  input.style.height = '1px';
+  input.style.opacity = '0';
   const mimeTypes = options?.acceptedMimeTypes?.join(',');
   const fileExtensions = options?.acceptedFileExtensions?.join(',.');
   let acceptString = '';
@@ -73,9 +84,11 @@ export function fileSelector(
 
   input.addEventListener('change', handleFileInputChange);
   element.addEventListener('click', clickInput);
+  document.body.appendChild(input);
 
   onCleanup(() => {
     input.removeEventListener('change', handleFileInputChange);
     element.removeEventListener('click', clickInput);
+    input.remove();
   });
 }

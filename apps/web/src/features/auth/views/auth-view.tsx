@@ -107,12 +107,6 @@ export function AuthView(props: {
             <Stepper.Step>
               <LoginPicker
                 showApple={props.showApple}
-                onGoogle={() =>
-                  fireAndForget(
-                    context.startSso('google', props.intent),
-                    'auth'
-                  )
-                }
                 onApple={() =>
                   fireAndForget(context.startSso('apple', props.intent), 'auth')
                 }

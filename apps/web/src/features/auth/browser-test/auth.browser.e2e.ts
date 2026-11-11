@@ -48,17 +48,16 @@ test('a rate-limited code check says to wait instead of calling the code invalid
   await expect(page.getByRole('button', { name: 'Verify' })).toBeEnabled();
 });
 
-test('Google sign-in comes back with a session code the page redeems', async ({
+test('the sign-in page offers email and does not offer Google', async ({
   page,
 }) => {
-  await openFixture(page, '/?page=login', { ssoEmail: 'returning@acme.com' });
-  await page.getByRole('button', { name: 'Continue with Google' }).click();
-  await expectLanded(page, '/');
-  const world = await fakeAuth(page);
-  expect(Object.keys(world.sessionTokens)).toEqual([
-    expect.stringMatching(/^google-/),
-  ]);
-  expect(world.user?.email).toBe('returning@acme.com');
+  await openFixture(page, '/?page=login');
+  await expect(
+    page.getByRole('button', { name: 'Continue with Google' })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Continue with email' })
+  ).toBeVisible();
 });
 
 test('an expired session code leaves the visitor on sign-in', async ({
@@ -69,7 +68,7 @@ test('an expired session code leaves the visitor on sign-in', async ({
     'Sign-in failed. Please try again.'
   );
   await expect(
-    page.getByRole('button', { name: 'Continue with Google' })
+    page.getByRole('button', { name: 'Continue with email' })
   ).toBeVisible();
 });
 

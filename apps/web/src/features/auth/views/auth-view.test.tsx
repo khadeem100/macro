@@ -249,7 +249,7 @@ describe('email sign-in', () => {
     click('Change email');
     await screen.findByPlaceholderText('you@company.com');
     click('Back to sign in');
-    await screen.findByRole('button', { name: 'Continue with Google' });
+    await screen.findByRole('button', { name: 'Continue with email' });
   });
 
   it('signs straight in from a dev persona link when the backend returns the code', async () => {
@@ -271,11 +271,14 @@ describe('email sign-in', () => {
 });
 
 describe('single sign-on', () => {
-  it('starts Google with the page’s intent', async () => {
-    const { fake } = setup({ intent: 'login' });
-    click('Continue with Google');
-    await screen.findByTestId('signed-in');
-    expect(fake.calls()).toContain('sso:google:login');
+  it('offers email sign-in and does not offer Google', () => {
+    setup({ intent: 'login' });
+    expect(
+      screen.queryByRole('button', { name: 'Continue with Google' })
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Continue with email' })
+    ).toBeTruthy();
   });
 
   it('records the email choice as a sign-up click on /signup', () => {
@@ -302,7 +305,7 @@ describe('single sign-on', () => {
     const { setToken } = setupWithTokenSignal({
       world: { sessionTokens: { 'tok-deep-link': 'sso@acme.com' } },
     });
-    await screen.findByRole('button', { name: 'Continue with Google' });
+    await screen.findByRole('button', { name: 'Continue with email' });
 
     setToken('tok-deep-link');
 
@@ -353,7 +356,7 @@ describe('single sign-on', () => {
       ])
     );
     expect(
-      screen.getByRole('button', { name: 'Continue with Google' })
+      screen.getByRole('button', { name: 'Continue with email' })
     ).toBeTruthy();
   });
 });
